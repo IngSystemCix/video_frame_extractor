@@ -2,24 +2,30 @@ name: Release Video Frame Extractor
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - main
 
 permissions:
-  contents: write 
+  contents: write
 
 jobs:
-  build:
+  release:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $json = Get-Content version.json | ConvertFrom-Json
+          echo "version=$($json.version)" >> $env:GITHUB_OUTPUT
 
       - name: Install dependencies
         run: |
@@ -28,11 +34,17 @@ jobs:
           pip install pyinstaller
 
       - name: Build executable
-        run: |
-          pyinstaller videoFrameExtractor.spec
+        run: pyinstaller videoFrameExtractor.spec
 
-      - name: Create Release
+      - name: Zip build
+        run: |
+          powershell Compress-Archive `
+            -Path dist/* `
+            -DestinationPath VideoFrameExtractor-${{ steps.version.outputs.version }}.zip
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            dist/**
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Video Frame Extractor v${{ steps.version.outputs.version }}
+          files: VideoFrameExtractor-${{ steps.version.outputs.version }}.zip
