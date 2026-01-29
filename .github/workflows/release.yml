@@ -13,14 +13,15 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Read version
+      - name: Read version from version.json
         id: version
         shell: pwsh
         run: |
@@ -34,11 +35,19 @@ jobs:
           pip install pyinstaller
 
       - name: Build executable
-        run: pyinstaller videoFrameExtractor.spec
-
-      - name: Zip build
         run: |
-          powershell Compress-Archive `
+          pyinstaller videoFrameExtractor.spec
+
+      - name: Verify EXE exists
+        shell: pwsh
+        run: |
+          if (!(Test-Path "dist")) { throw "❌ dist folder not found" }
+          Get-ChildItem -Recurse dist
+
+      - name: Create ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive `
             -Path dist/* `
             -DestinationPath VideoFrameExtractor-${{ steps.version.outputs.version }}.zip
 
