@@ -2,7 +2,7 @@
 
 Una aplicación de escritorio moderna e intuitiva para extraer fotogramas de videos con precisión de segundo. Herramienta profesional desarrollada con interfaz gráfica mejorada para procesamiento eficiente de contenido audiovisual.
 
-**Versión:** 1.0.0 | **Última actualización:** 26 de enero de 2026
+**Versión:** 1.0.3 | **Última actualización:** 29 de enero de 2026
 
 ![vista previa](assets/preview.png)
 
